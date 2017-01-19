@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gunsel Airfreight App</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet"><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link href="https://fonts.googleapis.com/css?family=Cormorant|Coustard|Goudy+Bookletter+1911|Montserrat|Rufina|Trocchi" rel="stylesheet">
+ 	<link rel="stylesheet" type="text/css" href="css/style.css">
+ 	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+  </head>
+
+<body>
+
+<div id="header" class="container-fluid">
+	<div class="upperBanner"> Gunsel Airfreight Online</div>
+</div>
+
+<div id="main-container" class="container">
+
+	<div class="row col-xs-6 col-sm-6 col-md-4 col-lg-3">
+		<form id="shipmentSpecs">
+		    <legend>Shipment specs</legend>
+			<p>cargo type:
+				<select id="cargoType" name="cargoType" >
+					<option value="1">GEN</option>
+					<option value="2">DGR</option>
+					<option value="3">TkPlus</option>
+				</select>
+			</p>	
+			<p id="aFee">AWB fee: <br>UAH 500 <input  name='awb' id="awbFee" type="checkbox"></p>
+			<p id="cFee">customer fee: <br> UAH 300 <input  id="customsFee" type="checkbox"></p>
+			<p>weight: <input  id="weight"  name="weight"  type="number" placeholder="in kg"></p>
+			<p>length: <input  id="xLength" name="xLength"  type="number" placeholder="dims in cm"></p>
+			<p>height: <input  id="yHeight" name="yHeight"  type="number" placeholder="dims in cm"></p>
+			<p>depth: <input  id="zDepth"  name="zDepth"  type="number" placeholder="dims in cm"></p>	
+		</form>
+	</div>
+
+	<div id="rateForm" class="row col-xs-5 col-sm-5 col-md-3 col-xs-offset-1 col-lg-2">
+		<legend>Rate Applied</legend>
+		<form action="" id="shipmentRates_Standard"> 
+			<p>std rate by IATA code: </p>
+			<p class="ui-widget"><input id="stdRate" name="stdRate" type="text" placeholder="airport code"></p>
+		<p id="or" class="text-center">OR</p>
+		<p>enter agreed rate: </p>
+			<p><input id="agreedRate" name="agreedRate" type="number" placeholder="UAH"></p>
+		</form>		
+	</div>
+
+	<div class="row col-xs-3  col-xs-offset-1 col-lg-1 col-lg-offset-0">
+		<button id="calculate" type="button" value="Calculate"> Calculate airfreight</button>
+	</div>
+
+	<div id="shipCalc" class="row col-xs-12 col-sm-4 col-md-3 col-lg-3">
+		<legend>Shipment calculations</legend>
+		<div id="outputValues" ></div>
+	</div>
+</div>
+<div id="container-middle" class="container-fluid"></div>
+
+<div id="container-footer" class="container-fluid">
+	<div class="footer col-xs-12"><a href="https://www.linkedin.com/in/yuri-cheremnykh-04198a104?trk=hp-identity-photo" target='_blank'>developed by Yuri Cheremnykh</a></div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-migrate-3.0.0.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->
+<script src="js/plugins/jQuery-Autocomplete-master/dist/jquery.autocomplete.min.js"></script>
+
+<script>
+$(document).ready(function() {
+
+		var weight = $('#weight'),
+			length = $('#xLength'),
+			height = $('#yHeight'),
+			depth = $('#zDepth'),
+        	stdRate = $('#stdRate'),
+        	agrRate = $('#agreedRate'), 
+        	calc = $('#calculate'),
+        	output = $('#outputValues'),
+        	cargoType = $('#cargoType');
+      	    
+        calc.click(function() {
+        	cargoType = $('#cargoType option:selected').text();
+        	awbFee = ($('#awbFee').is(":checked") ? 'y' : 'n'),
+			customsFee = ($('#customsFee').prop('checked') ? 'y' : 'n');
+    	    var xmlhttp = new XMLHttpRequest();
+	        var reqUrl = "db-response.php?q=" + stdRate.val() + "&w=" + weight.val() + "&l=" + length.val() + "&h=" + height.val() + "&d=" + depth.val() + "&a=" + agrRate.val() + "&awbFee=" + awbFee + "&customsFee=" + customsFee + "&cargoType=" + cargoType;
+ 			xmlhttp.onreadystatechange = function() {
+	            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	                output.html(xmlhttp.responseText);
+	            }
+	        };
+	        xmlhttp.open("GET", reqUrl ,true);
+	        xmlhttp.send(); 	           
+        });
+});
+</script>
+
+<script>
+    var dataGet = [];
+
+    $.ajax({
+    	url: 'search.php',
+    	async: false,
+    	success: function(data) {
+    		dataGet = data;
+    	}	
+    });
+    dataGet = JSON.parse(dataGet);
+
+  $('#stdRate').devbridgeAutocomplete({
+    lookup: dataGet ,
+    groupBy: 'category'		
+});
+</script>
+</body>
+</html>
